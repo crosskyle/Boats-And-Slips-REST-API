@@ -4,7 +4,6 @@
 
 from google.appengine.ext import ndb
 import webapp2
-import time
 import json
 
 
@@ -138,7 +137,6 @@ class boatHandler(webapp2.RequestHandler):
 				slip_with_boat.put()
 
 			ndb.Key(urlsafe=id).delete()
-			time.sleep(.2)
 			self.response.set_status(204)
 
 
@@ -267,7 +265,6 @@ class slipHandler(webapp2.RequestHandler):
 				boat_entity.put()
 
 			ndb.Key(urlsafe=id).delete()
-			time.sleep(.2)
 			self.response.set_status(204)
 
 
@@ -291,7 +288,6 @@ class slipWithBoatHandler(webapp2.RequestHandler):
 						slip_entity.arrival_date = req_body['arrival_date']
 
 						slip_entity.put()
-						time.sleep(.7)
 
 						slip_dict = slip_entity.to_dict()
 						slip_dict['kind'] = ndb.Key(urlsafe=id).kind()
