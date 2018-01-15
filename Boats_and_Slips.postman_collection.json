@@ -1,0 +1,2454 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Boats_and_Slips",
+		"_postman_id": "87384667-f5e3-8965-2ae9-a0ff7d9d82d4",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "DELETE /boats/{boat_id}",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Deletion has correct response code\"] = responseCode.code === 204;"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var flag = false;",
+									"",
+									"var data = JSON.parse(responseBody).contents;",
+									"",
+									"data.forEach(function(boat) {",
+									"    if (boat.id == postman.getEnvironmentVariable(\"ID\")) {",
+									"        flag = true;",
+									"    }",
+									"});",
+									"",
+									"tests[\"Delete a boat: boat no longer exists\"] = flag === false;",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuthToken}}",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DELETE /boats/{boat_id} - If the boat was in a slip, the boat is removed from the slip",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"boat_ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"slip_ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 33\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}/boat",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r  \"current_boat\": \"{{boat_ID}}\",\r  \"arrival_date\": \"07/22/2017\" \r}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{boat_ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Contents of slip are correct\"] = data.current_boat === null && data.arrival_date === null;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DELETE /slips/{slip_id}",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 78\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Deletion has correct response code\"] = responseCode.code === 204;",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var flag = false;",
+									"",
+									"var data = JSON.parse(responseBody).contents;",
+									"",
+									"if (data.length > 0) {",
+									"    data.forEach(function(boat) {",
+									"        if (boat.id == postman.getEnvironmentVariable(\"ID\")) {",
+									"        flag = true;",
+									"        }",
+									"    });",
+									"}",
+									"",
+									"",
+									"tests[\"Slip no longer exists\"] = flag === false;",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DELETE /slips/{slip_id} - If a boat in the slip, the boat is set to at sea",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"boat_ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"slip_ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 33\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}/boat",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r  \"current_boat\": \"{{boat_ID}}\",\r  \"arrival_date\": \"07/22/2017\" \r}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Boat is at sea if in a slip that was deleted\"] = data.at_sea === true;"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{boat_ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DELETE /slips/{slip_id}/boat",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"boat_ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"slip_ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 33\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}/boat",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r  \"current_boat\": \"{{boat_ID}}\",\r  \"arrival_date\": \"07/22/2017\" \r}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}/boat",
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Contents of slip are correct\"] = data.number === 33 && data.current_boat === null && data.arrival_date === null;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Boat is set to at sea\"] = data.at_sea === true;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{boat_ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error handling  - POST /boats",
+			"description": "A name input is required",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 400\"] = responseCode.code === 400;"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"sailboat\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error handling - POST /slips",
+			"description": "Case 1: A number is not provided.\nCase 2: A slip is not unique.",
+			"item": [
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 400\"] = responseCode.code === 400;"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 1\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 400\"] = responseCode.code === 400;"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 1\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error handling - Too few elements for PUT request",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats",
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error handling - putting a boat in an occupied slip",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"boat_ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"slip_ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 33\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}/boat",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r  \"current_boat\": \"{{boat_ID}}\",\r  \"arrival_date\": \"07/22/2017\" \r}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{boat_ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error handling - putting a boat in two slips",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"boat_ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"slip_ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 33\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}/boat",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r  \"current_boat\": \"{{boat_ID}}\",\r  \"arrival_date\": \"07/22/2017\" \r}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 403\"] = responseCode.code === 403;"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips/{{other_slip_ID}}/boat",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r  \"current_boat\": \"{{boat_ID}}\",\r  \"arrival_date\": \"07/22/2017\" \r}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{boat_ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"other_slip_ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 9\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}} copy",
+					"request": {
+						"url": "http://{{authority}}/slips/{{other_slip_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error handling - too many elements for PATCH",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 400\"] = responseCode.code === 400;"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"newName\",\n  \"length\": 2,\n  \"type\": \"abc\",\n  \"number\": 3\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error handling: removing a boat from an empty slip",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"boat_ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"slip_ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 33\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 400\"] = responseCode.code === 400;"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}/boat",
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{boat_ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PATCH /boats/{boat_id}",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"newName\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Contents of edit are correct\"] = data.name === \"newName\" && data.type === null && data.length === null;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"newType\",\n  \"length\": 1\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Contents of edit are correct\"] = data.name === \"newName\" && data.type === \"newType\" && data.length === 1;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PATCH /slips/{slip_id}",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 47\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{ID}}",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 22\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Contents of edit are correct\"] = data.number === 22;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips/{{ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "POST /boats and GET /boats",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"numberOfPosts\", JSON.stringify(JSON.parse(responseBody).contents.length));",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var expectedNumberOfPosts = JSON.parse(postman.getEnvironmentVariable(\"numberOfPosts\")) + 1;",
+									"",
+									"var actualNumberOfPosts = JSON.parse(responseBody).contents.length;",
+									"",
+									"tests[\"Confirm that when you create a boat the number of boats increases by 1\"] = expectedNumberOfPosts === actualNumberOfPosts;",
+									"",
+									"postman.clearEnvironmentVariable(\"numberOfPosts\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "POST /boats and GET /boats/{boat_id}",
+			"description": "",
+			"item": [
+				{
+					"name": "POST /boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "POST /Boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Contents of boat are correct\"] = data.name === \"testName\" && data.type === \"sailboat\" && data.length === 20;",
+									"",
+									"tests[\"Boat starts at sea\"] = data.at_sea === true;"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "POST /slips and GET /slips",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"numberOfPosts\", JSON.stringify(JSON.parse(responseBody).contents.length));",
+									"",
+									"console.log(responseBody);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 5\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var expectedNumberOfPosts = JSON.parse(postman.getEnvironmentVariable(\"numberOfPosts\")) + 1;",
+									"",
+									"var actualNumberOfPosts = JSON.parse(responseBody).contents.length;",
+									"",
+									"tests[\"Confirm that when you create a boat the number of boats increases by 1\"] = expectedNumberOfPosts === actualNumberOfPosts;",
+									"",
+									"postman.clearEnvironmentVariable(\"numberOfPosts\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "POST /slips and GET /slips/{slip_id}",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 99\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Contents of slip are correct\"] = data.number === 99 && data.current_boat === null && data.arrival_date === null;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips/{{ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PUT /boats/{boat_id}",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"newName\",\n  \"type\": \"newType\",\n  \"length\": 1\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Contents of edit are correct\"] = data.name === \"newName\" && data.type === \"newType\" && data.length === 1;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PUT /slips/{slip_id}/boat",
+			"description": "",
+			"item": [
+				{
+					"name": "http://{{authority}}/boats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"boat_ID\", JSON.parse(responseBody).id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"postman.setEnvironmentVariable(\"slip_ID\", data.id);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number\": 33\n}\n"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}/boat",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r  \"current_boat\": \"{{boat_ID}}\",\r  \"arrival_date\": \"07/22/2017\" \r}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Contents of slip are correct\"] = data.number === 33 && data.current_boat === postman.getEnvironmentVariable(\"boat_ID\") && data.arrival_date === \"07/22/2017\" ;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/slips/{{slip_ID}}",
+					"request": {
+						"url": "http://{{authority}}/slips/{{slip_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{ID}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"",
+									"tests[\"Boat is not at sea\"] = data.at_sea === false;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://{{authority}}/boats/{{boat_ID}}",
+					"request": {
+						"url": "http://{{authority}}/boats/{{boat_ID}}",
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "http://{{authority}}/boats",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 400\"] = responseCode.code === 400;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{authority}}/boats/{{ID}}",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"testName\",\n  \"type\": \"sailboat\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{authority}}/boats",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"postman.setEnvironmentVariable(\"other_boat_ID\", JSON.parse(responseBody).id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{authority}}/boats",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"other boat\",\n  \"type\": \"sailboat\",\n  \"length\": 20\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{authority}}/slips/{{slip_ID}}/boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 403\"] = responseCode.code === 403;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{authority}}/slips/{{slip_ID}}/boat",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r  \"current_boat\": \"{{other_boat_ID}}\",\r  \"arrival_date\": \"07/22/2017\" \r}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://{{authority}}/boats/{{boat_ID}}",
+			"request": {
+				"url": "http://{{authority}}/boats/{{other_boat_ID}}",
+				"method": "DELETE",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
